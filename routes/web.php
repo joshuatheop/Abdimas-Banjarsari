@@ -2,17 +2,20 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductController as PublicProductController; 
 
-use App\http\Controllers\LandingController;
+use App\Http\Controllers\LandingController;
 
 // User Controllers
 use App\Http\Controllers\user\UserController;
+use App\Http\Controllers\user\ProductController as UserProductController;
+use App\Http\Middleware\UserMiddleware;
 
 // Admin Controllers
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\BeritaController;
 use App\Http\Controllers\admin\DataLandingController;
+use App\Http\Middleware\AdminMiddleware;
 
 Route::get('/', [LandingController::class, 'landing']);
 Route::get('/sejarah', [LandingController::class, 'sejarah'])->name('sejarah');
@@ -23,8 +26,8 @@ Route::get('/kelembagaan-desa', [LandingController::class, 'kelembagaandesa'])->
 Route::get('/isu-strategis', [LandingController::class, 'isustrategis'])->name('isustrategis');
 Route::get('/program', [LandingController::class, 'program'])->name('user.program');
 Route::get('/produkunggulan', [LandingController::class, 'produkunggulan'])->name('produkunggulan');
-Route::get('/katalog', [ProductController::class, 'index'])->name('katalog.index');
-Route::get('/katalog/{slug}', [ProductController::class, 'show'])->name('katalog.show');
+Route::get('/katalog', [PublicProductController::class, 'index'])->name('katalog.index');
+Route::get('/katalog/{slug}', [PublicProductController::class, 'show'])->name('katalog.show');
 Route::get('/berita', [LandingController::class, 'berita'])->name('user.berita');
 Route::get('/berita/{id}', [LandingController::class, 'showberita'])->name('user.berita.show');
 
@@ -36,9 +39,10 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::middleware(['auth', 'userMiddleware'])->group(function () {
-    Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
-
+Route::middleware(['auth', 'verified', UserMiddleware::class])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+    Route::get('/produkunggulan', [UserController::class, 'produkunggulan'])->name('produkunggulan');
+    Route::resource('products', UserProductController::class)->names('products');
 });
 
 Route::middleware(['auth', 'adminMiddleware'])->group(function () {
@@ -53,8 +57,6 @@ Route::middleware(['auth', 'adminMiddleware'])->group(function () {
     Route::get('admin/berita/{berita}/edit', [BeritaController::class, 'edit'])->name('admin.berita.edit');
     Route::put('admin/berita/{berita}', [BeritaController::class, 'update'])->name('admin.berita.update');
     Route::delete('admin/berita/{berita}', [BeritaController::class, 'destroy'])->name('admin.berita.destroy');
-
-
 
     Route::get('sambutan/edit', [DataLandingController::class, 'index'])->name('admin.datalandingpage');
     Route::post('sambutan/update', [DataLandingController::class, 'update'])->name('admin.sambutan.update');

@@ -22,7 +22,7 @@ class Product extends Model
         'image',
         'shoppee',
         'whatsapp',
-        'category_id',  // ✅ ganti dari 'category' jadi 'category_id'
+        'category_id',
         'tags',
         'seller',
     ];

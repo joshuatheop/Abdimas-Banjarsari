@@ -64,8 +64,18 @@
 
     <!-- Tombol Login/Register -->
     <div class="auth-buttons">
-      <a href="{{ route('login') }}" class="login-btn">Masuk</a>
-      <a href="{{ route('register') }}" class="register-btn">Daftar</a>
+              @guest
+            {{-- Tampilkan ini hanya jika pengunjung belum login --}}
+            <a href="{{ route('login') }}" class="login-btn">Masuk</a>
+            <a href="{{ route('register') }}" class="register-btn">Daftar</a>
+        @endguest
+
+        @auth
+            {{-- Tampilkan ini hanya jika pengunjung sudah login --}}
+            <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('user.dashboard') }}" class="register-btn">
+                Dashboard Admin
+            </a>
+        @endauth
     </div>
   </div>
 </nav>
